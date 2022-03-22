@@ -14,8 +14,16 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-t", "--template", required=True, help="Path to template image")
 ap.add_argument("-i", "--images", required=True,
                 help="Path to images where template will be matched")
+ap.add_argument("-min", "--min_scale", default=0.1,
+                help="Min scale image in the loop over the scales of the image")
+ap.add_argument("-max", "--max_scale", default=2,
+                help="Max scale image in the loop over the scales of the image")
+ap.add_argument("-n", "--number", default=50,
+                help="Number of scales image in the loop over the scales of the image")
 ap.add_argument("-v", "--visualize",
                 help="Flag indicating whether or not to visualize each iteration")
+# ap.add_argument("-c", "--cut",
+#                 help="Flag indicating whether or not to cut each template in the each image")
 args = vars(ap.parse_args())
 
 # load the image image, convert it to grayscale, and detect edges
@@ -23,7 +31,6 @@ template = cv2.imread(args["template"])
 template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 template = cv2.Canny(template, 50, 200)
 (tH, tW) = template.shape[:2]
-cv2.imshow("Template", template)
 
 # loop over the images to find the template in
 for imagePath in glob.glob(args["images"] + "/*.jpg"):
@@ -34,7 +41,7 @@ for imagePath in glob.glob(args["images"] + "/*.jpg"):
     found = None
 
     # loop over the scales of the image
-    for scale in np.linspace(0.1, 2, 50)[::-1]:
+    for scale in np.linspace(args["min_scale"], args["max_scale"], args["number"])[::-1]:
         # resize the image according to the scale, and keep track
         # of the ratio of the resizing
         resized = imutils.resize(gray, width=int(gray.shape[1] * scale))
@@ -57,6 +64,7 @@ for imagePath in glob.glob(args["images"] + "/*.jpg"):
             clone = np.dstack([edged, edged, edged])
             cv2.rectangle(clone, (maxLoc[0], maxLoc[1]),
                           (maxLoc[0] + tW, maxLoc[1] + tH), (0, 0, 255), 2)
+            cv2.imshow("Template", template)
             cv2.imshow("Visualize", clone)
             cv2.waitKey(0)
 
@@ -75,3 +83,7 @@ for imagePath in glob.glob(args["images"] + "/*.jpg"):
     cv2.rectangle(image, (startX, startY), (endX, endY), (0, 0, 255), 2)
     cv2.imshow("Image", image)
     cv2.waitKey(0)
+
+    # if args.get("cut", False):
+    #     cv2.imwrite("crop/" + imagePath, image[0:startY, 0:gray.shape[::-1][0]])
+
