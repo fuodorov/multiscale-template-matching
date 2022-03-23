@@ -14,7 +14,7 @@ does not mean that you cannot apply template matching.
 In this case, all you need to do is apply a little trick:
 
 Loop over the input image at multiple scales (i.e. make the input image progressively smaller and smaller).
-Apply template matching using cv2.matchTemplate and keep track of the match with the largest correlation coefficient (along with the x, y-coordinates of the region with the largest correlation coefficient).
+Apply template matching using `cv2.matchTemplate` and keep track of the match with the largest correlation coefficient (along with the x, y-coordinates of the region with the largest correlation coefficient).
 After looping over all scales, take the region with the largest correlation coefficient and use that as your “matched” region.
 As I said, this trick is dead simple — but in certain situations this approach can save you from writing a lot of extra code and dealing with more fancy techniques to matching objects in images.
 
